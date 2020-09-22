@@ -7,6 +7,6 @@ package cn.itweknow.sbrpcapi.service;
  */
 public interface HelloRpcService {
 
-    String sayHello();
+    String sayHello(String msg);
 
 }

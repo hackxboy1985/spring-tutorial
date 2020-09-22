@@ -8,6 +8,8 @@ import cn.itweknow.sbrpccorestarter.registory.ServiceDiscovery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.UUID;
 
@@ -24,7 +26,8 @@ public class RpcProxy {
 
     @SuppressWarnings("unchecked")
     public <T> T create(Class<?> interfaceClass, String providerName) {
-        return (T) Proxy.newProxyInstance(interfaceClass.getClassLoader(), new Class<?>[]{interfaceClass},
+        return (T) Proxy.newProxyInstance(interfaceClass.getClassLoader(),
+                new Class<?>[]{interfaceClass},
                 (proxy, method, args) -> {
             // 通过netty向Rpc服务发送请求。
             // 构建一个请求。
@@ -42,7 +45,7 @@ public class RpcProxy {
             int port = Integer.parseInt(addrInfo[1]);
             RpcClient rpcClient = new RpcClient(host, port);
             // 发送调用消息。
-            RpcResponse response = rpcClient.send(request);
+            RpcResponse response = rpcClient.send(providerInfo,request,true);
             if (response.isError()) {
                 throw response.getError();
             } else {

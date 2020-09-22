@@ -21,9 +21,19 @@ public class ServerHandler extends SimpleChannelInboundHandler<RpcRequest> {
             .getLogger(ServerHandler.class);
 
     @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        logger.info("RpcStarter::provider server accept connect {},{}",  ctx.channel().remoteAddress().toString(),ctx.channel().id());
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        logger.info("RpcStarter::provider server disconnected {},{}",  ctx.channel().remoteAddress().toString(), ctx.channel().id());
+    }
+
+    @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext,
                                 RpcRequest request) throws Exception {
-        logger.info("provider accept request,{}", request);
+        logger.info("RpcStarter::provider server receive data request,{}", request);
         // 返回的对象。
         RpcResponse rpcResponse = new RpcResponse();
         // 将请求id原路带回
@@ -34,12 +44,15 @@ public class ServerHandler extends SimpleChannelInboundHandler<RpcRequest> {
         } catch (Exception e) {
             rpcResponse.setError(e);
         }
-        channelHandlerContext.writeAndFlush(rpcResponse).addListener(ChannelFutureListener.CLOSE);
+
+        //TODO:addListener(ChannelFutureListener.CLOSE)会异步断开连接,服务端不应该主动断开连接.
+//        channelHandlerContext.writeAndFlush(rpcResponse).addListener(ChannelFutureListener.CLOSE);
+        channelHandlerContext.writeAndFlush(rpcResponse);
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        logger.error("netty provider caught error,", cause);
+        logger.error("RpcStarter::provider netty caught error {},", ctx.channel().remoteAddress().toString(),cause);
         ctx.close();
     }
 

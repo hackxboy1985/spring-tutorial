@@ -7,7 +7,7 @@ import cn.itweknow.sbrpccorestarter.anno.RpcService;
 public class HelloRpcServiceImpl implements HelloRpcService {
 
     @Override
-    public String sayHello() {
-        return "Hello RPC!";
+    public String sayHello(String msg) {
+        return "Hello RPC!" + msg;
     }
 }
